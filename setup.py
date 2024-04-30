@@ -77,7 +77,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),
-    install_requires=dependencies,
+    #install_requires=dependencies,
     classifiers=[
         "Programming Language :: Python :: 3",
     ],
