@@ -17,6 +17,7 @@
 
 import functools
 import json
+import os
 import pickle
 from typing import Any, Mapping
 
@@ -407,12 +408,12 @@ def _save_checkpoint(unused_cfg, py_step, training_state, model_cfg):
       opt_state=opt_state,
       config=model_cfg.to_dict(),
   )
-  with open("checkpoint.pkl", "wb") as f:
+  with open(os.path.join(unused_cfg.get("path"), "checkpoint.pkl"), "wb") as f:
     pickle.dump(ckpt, f)
 
 
-def _reload_from_checkpoint(_, current_state):
-  ckpt = checkpoint.load_checkpoint("checkpoint.pkl")
+def _reload_from_checkpoint(_, current_state, config):
+  ckpt = checkpoint.load_checkpoint(os.path.join(config.checkpointing.get("path"), "checkpoint.pkl"))
   params = _replicate_to_local_devices(ckpt.params)
   opt_state = _replicate_to_local_devices(ckpt.opt_state)
   py_step = ckpt.step
@@ -500,7 +501,7 @@ def main(config, _):
 
   # Possibly overwrite it from a checkpoint (except for the RNG)
   try:
-    training_state, py_step = _reload_from_checkpoint(None, training_state)
+    training_state, py_step = _reload_from_checkpoint(None, training_state, config)
   except checkpoint.CheckpointLoadingError:
     logging.warning(
         "No checkpoint found, or unusable -- starting from scratch."

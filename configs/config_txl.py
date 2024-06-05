@@ -104,6 +104,7 @@ def get_config(debug=False):
               interval_steps=10,
           ),
           checkpointing=dict(
+              path="<<< path to save checkpoint.pkl file >>>",
               interval_steps=500,
           ),
       )
