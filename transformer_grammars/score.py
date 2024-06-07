@@ -59,7 +59,7 @@ def _call_model(forward, maskrules, params, state, chunk):
       log_probs, chunk.labels
   )
   ### add surprisal values for each label
-  labels_surp = -1*jnp.divide(labels_log_probs, jnp.log(2))
+  labels_surp = -jnp.divide(labels_log_probs, jnp.log(2))
   chunk_log_prob = jnp.sum(labels_log_probs, axis=1)
   output = (log_probs, labels_log_probs, chunk_log_prob, labels_surp)
   # Batch size is 1, so drop the batch dimension inside the jitted call.
@@ -75,6 +75,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
   tokenizer = tokenizer.value
   checkpoint_path = checkpoint_path.value
   input_ = input_.value
+  output = output.value
   add_eos = add_eos.value
 
   # Get the token type ranges, i.e. which token IDs correspond to terminals,
@@ -115,7 +116,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
   state = None
   seq_log_prob = 0.0
   total_log_prob = 0.0
-  with open(os.path.join(output, "output.tsv"), "r", encoding="utf-8") as f:
+  with open(os.path.join(output, "output.tsv"), "w", encoding="utf-8") as f:
     for chunk in chunks_it:
       (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
           forward, maskrules, params, state, chunk
@@ -131,10 +132,10 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
           continue
         if lab != 0:
           print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp:.2f}\tSurprisal: {ls:.2f}")
-          f.writelines("{dic[inp]}\t{dic[lab]}\t{lp:.2f}\t{ls:.2f}")
+          f.write(f"{dic[inp]}\t{dic[lab]}\t{lp:.2f}\t{ls:.2f}\n")
         else:
           print(f"Input: {dic[inp]}\tLabel: (no prediction)")
-          f.writelines("{dic[inp]}\t{dic[lab]}\tNone\tNone")
+          f.write(f"{dic[inp]}\t{dic[lab]}\tNone\tNone\n")
 
       if chunk.end_of_seq.item():
         print(f"Sequence log probability: {seq_log_prob:.2f}")
