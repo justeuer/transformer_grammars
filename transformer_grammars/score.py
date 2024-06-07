@@ -56,8 +56,10 @@ def _call_model(forward, maskrules, params, state, chunk):
   labels_log_probs = jax.vmap(jax.vmap(lambda t, idx: t[idx], 0, 0), 0, 0)(
       log_probs, chunk.labels
   )
+  ### add surprisal values for each label
+  labels_surp = -jnp.divide(labels_log_probs, jnp.log(2))
   chunk_log_prob = jnp.sum(labels_log_probs, axis=1)
-  output = (log_probs, labels_log_probs, chunk_log_prob)
+  output = (log_probs, labels_log_probs, chunk_log_prob, labels_surp)
   # Batch size is 1, so drop the batch dimension inside the jitted call.
   output = jax.tree_util.tree_map(functools.partial(jnp.squeeze, axis=0),
                                   output)
@@ -112,7 +114,7 @@ def main(tokenizer, checkpoint_path, input_, add_eos, _):
   seq_log_prob = 0.0
   total_log_prob = 0.0
   for chunk in chunks_it:
-    (_, labels_log_probs, chunk_log_prob), state = _call_model(
+    (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
         forward, maskrules, params, state, chunk
     )
     inputs = chunk.inputs[0]
@@ -121,11 +123,11 @@ def main(tokenizer, checkpoint_path, input_, add_eos, _):
     total_log_prob += chunk_log_prob
     if chunk.beginning_of_seq.item():
       print("=" * 80)
-    for inp, lab, lp in zip(inputs, labels, labels_log_probs):
+    for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
       if inp == 0:
         continue
       if lab != 0:
-        print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp:.2f}")
+        print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp:.2f}\tSurprisal: {ls}")
       else:
         print(f"Input: {dic[inp]}\tLabel: (no prediction)")
 
