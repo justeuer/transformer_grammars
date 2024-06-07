@@ -19,6 +19,8 @@ Note: This is a naive implementation with batch size 1 for simplicity. It can be
 extended to support > 1 batch sizes, or returning activations from the model.
 """
 
+import os
+
 import functools
 import jax
 import jax.numpy as jnp
@@ -57,7 +59,7 @@ def _call_model(forward, maskrules, params, state, chunk):
       log_probs, chunk.labels
   )
   ### add surprisal values for each label
-  labels_surp = -jnp.divide(labels_log_probs, jnp.log(2))
+  labels_surp = -1*jnp.divide(labels_log_probs, jnp.log(2))
   chunk_log_prob = jnp.sum(labels_log_probs, axis=1)
   output = (log_probs, labels_log_probs, chunk_log_prob, labels_surp)
   # Batch size is 1, so drop the batch dimension inside the jitted call.
@@ -66,7 +68,7 @@ def _call_model(forward, maskrules, params, state, chunk):
   return output, state
 
 
-def main(tokenizer, checkpoint_path, input_, add_eos, _):
+def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
   """Score."""
 
   # Extract value from flag handles.
@@ -113,27 +115,30 @@ def main(tokenizer, checkpoint_path, input_, add_eos, _):
   state = None
   seq_log_prob = 0.0
   total_log_prob = 0.0
-  for chunk in chunks_it:
-    (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
-        forward, maskrules, params, state, chunk
-    )
-    inputs = chunk.inputs[0]
-    labels = chunk.labels[0]
-    seq_log_prob += chunk_log_prob
-    total_log_prob += chunk_log_prob
-    if chunk.beginning_of_seq.item():
-      print("=" * 80)
-    for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
-      if inp == 0:
-        continue
-      if lab != 0:
-        print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp:.2f}\tSurprisal: {ls}")
-      else:
-        print(f"Input: {dic[inp]}\tLabel: (no prediction)")
+  with open(os.path.join(output, "output.tsv"), "r", encoding="utf-8") as f:
+    for chunk in chunks_it:
+      (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
+          forward, maskrules, params, state, chunk
+      )
+      inputs = chunk.inputs[0]
+      labels = chunk.labels[0]
+      seq_log_prob += chunk_log_prob
+      total_log_prob += chunk_log_prob
+      if chunk.beginning_of_seq.item():
+        print("=" * 80)
+      for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
+        if inp == 0:
+          continue
+        if lab != 0:
+          print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp:.2f}\tSurprisal: {ls:.2f}")
+          f.writelines("{dic[inp]}\t{dic[lab]}\t{lp:.2f}\t{ls:.2f}")
+        else:
+          print(f"Input: {dic[inp]}\tLabel: (no prediction)")
+          f.writelines("{dic[inp]}\t{dic[lab]}\tNone\tNone")
 
-    if chunk.end_of_seq.item():
-      print(f"Sequence log probability: {seq_log_prob:.2f}")
-      print("=" * 80)
-      print("")
-      seq_log_prob = 0.0
+      if chunk.end_of_seq.item():
+        print(f"Sequence log probability: {seq_log_prob:.2f}")
+        print("=" * 80)
+        print("")
+        seq_log_prob = 0.0
   print(f"Total dataset log probability: {total_log_prob:.2f}")

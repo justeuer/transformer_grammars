@@ -30,6 +30,7 @@ _CHECKPOINT = flags.DEFINE_string("checkpoint", None, "Checkpoint to load.")
 _INPUT = flags.DEFINE_string(
     "input", None, "File containing sequences to score, as tokenized TSV files."
 )
+_OUTPUT = flags.DEFINE_string("output", None, "Path to save predictions file to.")
 _TOKENIZER = flags.DEFINE_string("tokenizer", None, "Tokenizer.")
 _ADD_EOS = flags.DEFINE_bool(
     "add_eos",
@@ -48,6 +49,7 @@ if __name__ == "__main__":
           _TOKENIZER,
           _CHECKPOINT,
           _INPUT,
+          _OUTPUT,
           _ADD_EOS,
       )
   )
