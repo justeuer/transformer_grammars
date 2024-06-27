@@ -59,7 +59,7 @@ def _call_model(forward, maskrules, params, state, chunk):
       log_probs, chunk.labels
   )
   ### add surprisal values for each label
-  labels_surp = -jnp.divide(labels_log_probs, jnp.log(2))
+  labels_surp = -1 * jnp.divide(labels_log_probs, jnp.log(2))
   chunk_log_prob = jnp.sum(labels_log_probs, axis=1)
   output = (log_probs, labels_log_probs, chunk_log_prob, labels_surp)
   # Batch size is 1, so drop the batch dimension inside the jitted call.
@@ -131,8 +131,8 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         if inp == 0:
           continue
         if lab != 0:
-          print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp:.2f}\tSurprisal: {ls:.2f}")
-          f.write(f"{dic[inp]}\t{dic[lab]}\t{lp:.2f}\t{ls:.2f}\n")
+          print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp}\tSurprisal: {ls}")
+          f.write(f"{dic[inp]}\t{dic[lab]}\t{lp}\t{ls}\n")
         else:
           print(f"Input: {dic[inp]}\tLabel: (no prediction)")
           f.write(f"{dic[inp]}\t{dic[lab]}\tNone\tNone\n")
