@@ -535,8 +535,9 @@ def main(config, _):
         _save_checkpoint(config.checkpointing, py_step, training_state, config.model)
       else:
         patience_counter += 1
+        logging.warning(f"Loss did not improve, patience is: {patience_counter}")
         if patience_counter >= config.evaluation.patience:
-          logging.warning("Patience for early stopping exceeded -- terminating training.")
+          logging.warning("Patience for early stopping exceeded.")
           break
 
   logging.info("Training complete.")
