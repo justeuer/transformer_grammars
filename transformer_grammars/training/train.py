@@ -532,7 +532,7 @@ def main(config, _):
       if curr_loss < best_loss + config.evaluation.delta:
         best_loss = curr_loss
         patience_counter = 0
-        _save_checkpoint(config.checkpoint, py_step, training_state, config.model)
+        _save_checkpoint(config.checkpointing, py_step, training_state, config.model)
       else:
         patience_counter += 1
         if patience_counter >= config.evaluation.patience:
