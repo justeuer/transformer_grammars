@@ -369,6 +369,7 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
         total_count,
     )
     ds.seek(0)  # Reset the evaluation dataset without recreating it.
+    return total_loss
 
   return eval_epoch
 
@@ -511,6 +512,8 @@ def main(config, _):
 
   # Training loop.
   logging.info("Starting training.")
+  best_loss = float("inf")
+  patience_counter = 0
   while py_step < config.training.num_steps:
     training_state, metrics = p_update(training_state, next(ds))
     py_step += 1
@@ -519,12 +522,21 @@ def main(config, _):
     if last or _should_do(config.logging, py_step):
       _log(config.logging, py_step, metrics)
 
-    if last or _should_do(config.checkpointing, py_step):
-      _save_checkpoint(
-          config.checkpointing, py_step, training_state, config.model
-      )
+#    if last or _should_do(config.checkpointing, py_step):
+#      _save_checkpoint(
+#          config.checkpointing, py_step, training_state, config.model
+#      )
 
     if last or _should_do(config.evaluation, py_step):
-      evaluator(py_step, training_state)
+      curr_loss = evaluator(py_step, training_state)
+      if curr_loss < best_loss + config.evaluation.delta:
+        best_loss = curr_loss
+        patience_counter = 0
+        _save_checkpoint(config.checkpoint, py_step, training_state, config.model)
+      else:
+        patience_counter += 1
+        if patience_counter >= config.evaluation.patience:
+          logging.warning("Patience for early stopping exceeded -- terminating training.")
+          break
 
   logging.info("Training complete.")
