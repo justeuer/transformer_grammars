@@ -503,7 +503,7 @@ def main(config, _):
   _log_shapes(training_state.params)
 
   wandb.init(
-    project=config.training.dataset.kwargs.filename,
+    project=config.training.dataset.kwargs.filename.replace("/", "-"),
     config=config
   )
 
