@@ -29,6 +29,7 @@ import jax.numpy as jnp
 import more_itertools
 import optax
 import tensorflow_datasets as tfds
+import wandb
 from transformer_grammars import common
 from transformer_grammars.data import preprocessing
 from transformer_grammars.data import sp_utils
@@ -497,8 +498,14 @@ def main(config, _):
   # transfers.
   py_step = 0
 
+  # logging
   logging.info("Parameters shapes:")
   _log_shapes(training_state.params)
+
+  wandb.init(
+    project=config.training.dataset.kwargs.filename,
+    config=config
+  )
 
   # Possibly overwrite it from a checkpoint (except for the RNG)
   try:
@@ -521,6 +528,7 @@ def main(config, _):
     last = py_step == config.training.num_steps
     if last or _should_do(config.logging, py_step):
       _log(config.logging, py_step, metrics)
+      wandb.log(metrics)
 
 #    if last or _should_do(config.checkpointing, py_step):
 #      _save_checkpoint(
