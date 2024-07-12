@@ -503,7 +503,7 @@ def main(config, _):
   _log_shapes(training_state.params)
 
   wandb.init(
-    project=config.training.dataset.kwargs.filename.replace("/", "-"),
+    project=config.training.dataset.kwargs.filename.replace("/", "-")[31:-10],
     config=config
   )
 
@@ -537,10 +537,12 @@ def main(config, _):
 
     if last or _should_do(config.evaluation, py_step):
       curr_loss = evaluator(py_step, training_state)
+      wandb.log({"validation_loss":curr_loss})
       if curr_loss < best_loss + config.evaluation.delta:
         best_loss = curr_loss
         patience_counter = 0
         _save_checkpoint(config.checkpointing, py_step, training_state, config.model)
+        wandb.log({"best_validation_loss":best_loss})
       else:
         patience_counter += 1
         logging.warning(f"Loss did not improve, patience is: {patience_counter}")
