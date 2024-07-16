@@ -503,7 +503,9 @@ def main(config, _):
   _log_shapes(training_state.params)
 
   wandb.init(
-    project=config.training.dataset.kwargs.filename.replace("/", "-")[31:-10],
+    project=config.logging.project,
+    group=config.logging.group,
+    name=config.logging.run_name,
     config=config
   )
 
