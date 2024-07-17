@@ -400,7 +400,7 @@ def _log(unused_cfg, py_step, metrics):
   logging.info("[train % 9d] %s", py_step, metrics_str)
 
 
-def _save_checkpoint(unused_cfg, py_step, training_state, model_cfg):
+def _save_checkpoint(unused_cfg, py_step, training_state, model_cfg, filename):
   logging.info("Saving checkpoint at step %d.", py_step)
   params = _get_first(training_state.params)
   opt_state = _get_first(training_state.opt_state)
@@ -410,7 +410,7 @@ def _save_checkpoint(unused_cfg, py_step, training_state, model_cfg):
       opt_state=opt_state,
       config=model_cfg.to_dict(),
   )
-  with open(os.path.join(unused_cfg.path,"checkpoint.pkl"), "wb") as f:
+  with open(os.path.join(unused_cfg.path, filename), "wb") as f:
     pickle.dump(ckpt, f)
 
 
@@ -532,18 +532,15 @@ def main(config, _):
       _log(config.logging, py_step, metrics)
       wandb.log(metrics)
 
-#    if last or _should_do(config.checkpointing, py_step):
-#      _save_checkpoint(
-#          config.checkpointing, py_step, training_state, config.model
-#      )
-
     if last or _should_do(config.evaluation, py_step):
       curr_loss = evaluator(py_step, training_state)
       wandb.log({"validation_loss":curr_loss})
+      # save model
+      _save_checkpoint(config.checkpointing, py_step, training_state, config.model, "checkpoint.pkl")
       if curr_loss < best_loss + config.evaluation.delta:
         best_loss = curr_loss
         patience_counter = 0
-        _save_checkpoint(config.checkpointing, py_step, training_state, config.model)
+        _save_checkpoint(config.checkpointing, py_step, training_state, config.model, "best.pkl")
         wandb.log({"best_validation_loss":best_loss})
       else:
         patience_counter += 1
@@ -551,5 +548,8 @@ def main(config, _):
         if patience_counter >= config.evaluation.patience:
           logging.warning("Patience for early stopping exceeded.")
           break
+      # reload weights
+      training_state, py_step = _reload_from_checkpoint(None, training_state, config)
+
 
   logging.info("Training complete.")
