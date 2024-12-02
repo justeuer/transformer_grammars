@@ -401,7 +401,7 @@ def _log(unused_cfg, py_step, metrics):
 
 
 def _save_checkpoint(unused_cfg, py_step, training_state, model_cfg, filename):
-  logging.info(f"Saving {filename} at step {py_step}.", py_step)
+  logging.info(f"Saving {filename} at step {py_step}.")
   params = _get_first(training_state.params)
   opt_state = _get_first(training_state.opt_state)
   ckpt = checkpoint.Checkpoint(
