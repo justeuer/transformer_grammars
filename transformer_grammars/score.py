@@ -20,6 +20,7 @@ extended to support > 1 batch sizes, or returning activations from the model.
 """
 
 import os
+import csv
 
 import functools
 import jax
@@ -116,30 +117,33 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
   state = None
   seq_log_prob = 0.0
   total_log_prob = 0.0
-  with open(os.path.join(output, "output.tsv"), "w", encoding="utf-8") as f:
-    for chunk in chunks_it:
-      (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
-          forward, maskrules, params, state, chunk
-      )
-      inputs = chunk.inputs[0]
-      labels = chunk.labels[0]
-      seq_log_prob += chunk_log_prob
-      total_log_prob += chunk_log_prob
-      if chunk.beginning_of_seq.item():
-        print("=" * 80)
-      for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
-        if inp == 0:
-          continue
-        if lab != 0:
-          print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp}\tSurprisal: {ls}")
-          f.write(f"{dic[inp]}\t{dic[lab]}\t{lp}\t{ls}\n")
-        else:
-          print(f"Input: {dic[inp]}\tLabel: (no prediction)")
-          f.write(f"{dic[inp]}\t{dic[lab]}\tNone\tNone\n")
+  rows = [["Input", "Label", "Log_prob", "Surprisal"]]
+  for chunk in chunks_it:
+    (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
+        forward, maskrules, params, state, chunk
+    )
+    inputs = chunk.inputs[0]
+    labels = chunk.labels[0]
+    seq_log_prob += chunk_log_prob
+    total_log_prob += chunk_log_prob
+    if chunk.beginning_of_seq.item():
+      print("=" * 80)
+    for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
+      if inp == 0:
+        continue
+      if lab != 0:
+        print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp}\tSurprisal: {ls}")
+        rows.append([dic[inp], dic[lab], lp, ls])
+      else:
+        print(f"Input: {dic[inp]}\tLabel: (no prediction)")
+        rows.append([dic[inp], dic[lab], "None", "None"])
 
-      if chunk.end_of_seq.item():
-        print(f"Sequence log probability: {seq_log_prob:.2f}")
-        print("=" * 80)
-        print("")
-        seq_log_prob = 0.0
+    if chunk.end_of_seq.item():
+      print(f"Sequence log probability: {seq_log_prob:.2f}")
+      print("=" * 80)
+      print("")
+      seq_log_prob = 0.0
+  with open(os.path.join(output, "output.tsv"), "w", newline="", encoding="utf-8") as file:
+    writer = csv.writer(file)
+    writer.writerows(rows)
   print(f"Total dataset log probability: {total_log_prob:.2f}")
