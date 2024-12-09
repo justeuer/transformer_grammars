@@ -117,7 +117,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
   state = None
   seq_log_prob = 0.0
   total_log_prob = 0.0
-  rows = [["Input", "Label", "Log_prob", "Surprisal"]]
+  rows = [["input", "label", "log_prob", "surprisal"]]
   for chunk in chunks_it:
     (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
         forward, maskrules, params, state, chunk
@@ -133,17 +133,17 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         continue
       if lab != 0:
         print(f"Input: {dic[inp]}\tLabel: {dic[lab]}\tLog prob: {lp}\tSurprisal: {ls}")
-        rows.append([dic[inp], dic[lab], lp, ls])
+        rows.append([str(dic[inp]), str(dic[lab]), lp, ls])
       else:
         print(f"Input: {dic[inp]}\tLabel: (no prediction)")
-        rows.append([dic[inp], dic[lab], "None", "None"])
+        rows.append([str(dic[inp]), str(dic[lab]), "None", "None"])
 
     if chunk.end_of_seq.item():
       print(f"Sequence log probability: {seq_log_prob:.2f}")
       print("=" * 80)
       print("")
       seq_log_prob = 0.0
-  with open(os.path.join(output, "output.tsv"), "w", newline="", encoding="utf-8") as file:
+  with open(os.path.join(output, "output.csv"), "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerows(rows)
   print(f"Total dataset log probability: {total_log_prob:.2f}")
