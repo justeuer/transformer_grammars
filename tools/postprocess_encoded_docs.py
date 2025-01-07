@@ -54,31 +54,29 @@ from transformer_grammars.data import text_processing
 
 
 _VOCAB_FNAME = flags.DEFINE_string("vocab", None, ".vocab file to use")
-_INPUT_FNAME = flags.DEFINE_string(
-    "input", None, "Input file, output of spm_encode"
-)
+_INPUT_FNAME = flags.DEFINE_string("input", None, "Input file, output of spm_encode")
 _OUTPUT_FNAME = flags.DEFINE_string("output", None, "Output file")
 
 
 def process_line(l, vocab):
-  """Processes a single line from the input."""
-  input_ids = [int(x) for x in l.split(" ")]
-  return ",".join(
-      str(x) for x in text_processing.postprocess_token_ids(input_ids, vocab)
-  )
+    """Processes a single line from the input."""
+    input_ids = [int(x) for x in l.split(" ")]
+    return ",".join(
+        str(x) for x in text_processing.postprocess_token_ids(input_ids, vocab)
+    )
 
 
 def main(argv: Sequence[str]) -> None:
-  del argv
+    del argv
 
-  with open(_VOCAB_FNAME.value, "r") as f:
-    vocab = sp_utils.SentencePieceVocab.from_vocab_file(f)
+    with open(_VOCAB_FNAME.value, "r", encoding="utf-8") as f:
+        vocab = sp_utils.SentencePieceVocab.from_vocab_file(f)
 
-  with open(_INPUT_FNAME.value, "r") as inp:
-    with open(_OUTPUT_FNAME.value, "w") as output:
-      for l in inp:
-        output.write(process_line(l, vocab) + "\n")
+    with open(_INPUT_FNAME.value, "r", encoding="utf-8") as inp:
+        with open(_OUTPUT_FNAME.value, "w", encoding="utf-8") as output:
+            for l in inp:
+                output.write(process_line(l, vocab) + "\n")
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)
