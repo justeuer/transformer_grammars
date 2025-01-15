@@ -116,12 +116,13 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
     state = None
     seq_log_prob = 0.0
     total_log_prob = 0.0
+    chunk_id = 0
     rows = [["chunk_id", "input", "label", "log_prob", "surprisal"]]
     for chunk in chunks_it:
+        chunk_id += 1
         (_, labels_log_probs, chunk_log_prob, labels_surp), state = _call_model(
             forward, maskrules, params, state, chunk
         )
-        chunk_id = 0
         inputs = chunk.inputs[0]
         labels = chunk.labels[0]
         seq_log_prob += chunk_log_prob
@@ -129,7 +130,6 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         if chunk.beginning_of_seq.item():
             print("=" * 80)
         for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
-            chunk_id += 1
             if inp == 0:
                 continue
             if lab != 0:
