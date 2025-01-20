@@ -503,9 +503,11 @@ def main(config, _):
   _log_shapes(training_state.params)
 
   wandb.init(
+    entity=config.logging.entity,
     project=config.logging.project,
     group=config.logging.group,
     name=config.logging.run_name,
+    tags=config.logging.tags,
     config=config
   )
 
