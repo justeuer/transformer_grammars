@@ -30,6 +30,7 @@ import more_itertools
 import optax
 import tensorflow_datasets as tfds
 import wandb
+from ml_collections import ConfigDict
 from transformer_grammars import common
 from transformer_grammars.data import preprocessing
 from transformer_grammars.data import sp_utils
@@ -43,7 +44,7 @@ def flatten_dict(d, parent_key="", sep="_"):
     items = []
     for k, v in d.items():
         new_key = f"{parent_key}{sep}{k}" if parent_key else k
-        if isinstance(v, dict):
+        if isinstance(v, ConfigDict):
             items.extend(flatten_dict(v, new_key, sep=sep).items())
         else:
             items.append((new_key, v))
