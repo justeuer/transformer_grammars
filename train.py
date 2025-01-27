@@ -59,7 +59,7 @@ def override_config(config, output_path):
 def main(argv):
     config = _CONFIG.value
     config = override_config(config, _FLAGS.output_config)
-    functools.partial(train.main, config)
+    train.main(config, argv)
 
 
 if __name__ == "__main__":
