@@ -41,6 +41,7 @@ flags.DEFINE_string(
 
 
 def override_config(config, output_path):
+    config = config.value
     if _FLAGS.batch_size is not None:
         config.training.batch_size = _FLAGS.batch_size
     if _FLAGS.num_layers is not None:
@@ -61,6 +62,6 @@ if __name__ == "__main__":
     app.run(
         functools.partial(
             train.main,
-            functools.partial(override_config, _CONFIG.value, _FLAGS.output_config),
+            functools.partial(override_config, _CONFIG, _FLAGS.output_config),
         )
     )
