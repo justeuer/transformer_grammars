@@ -508,13 +508,16 @@ def main(config, _):
     logging.info("Parameters shapes:")
     _log_shapes(training_state.params)
 
+    flat_config = flatten_dict(config)
+    print(flat_config)
+
     wandb.init(
         entity=config.logging.entity,
         project=config.logging.project,
         group=config.logging.group,
         name=config.logging.run_name,
         tags=config.logging.tags,
-        config=flatten_dict(config),
+        config=flat_config,
     )
 
     # Possibly overwrite it from a checkpoint (except for the RNG)
