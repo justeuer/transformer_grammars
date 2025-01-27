@@ -439,6 +439,7 @@ def main(config, _):
 
     # Load the config
     # config = config.value
+    # loaded in train.py
 
     # Checks.
     if jax.local_device_count() < jax.device_count():
