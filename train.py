@@ -45,6 +45,7 @@ flags.DEFINE_string(
     "lr_schedule_name", None, "Override for learning rate scheduler name."
 )
 flags.DEFINE_float("start_lr", None, "Override for starting learning rate.")
+flags.DEFINE_integer("training_batch_size", None, "Override for batch size.")
 flags.DEFINE_integer("warmup_steps", None, "Override for warmup steps.")
 flags.DEFINE_integer("cosine_cycle_length", None, "Override for cosine cycle length.")
 flags.DEFINE_integer("vocab_size", None, "Override for vocabulary size.")
@@ -66,6 +67,8 @@ def override_config(config, output_path):
     # Training dataset overrides
     if _FLAGS.sentencepiece_vocab_filename:
         config.sentencepiece_vocab_filename = _FLAGS.sentencepiece_vocab_filename
+    if _FLAGS.training_batch_size:
+        config.training.batch_size = _FLAGS.training_batch_size
     if _FLAGS.training_dataset_filename:
         config.training.dataset.kwargs.filename = _FLAGS.training_dataset_filename
     if _FLAGS.evaluation_dataset_filename:
