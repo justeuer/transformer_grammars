@@ -39,6 +39,17 @@ from transformer_grammars.models.masking import utils as masking_utils
 from transformer_grammars.training import checkpoint
 
 
+def flatten_dict(d, parent_key="", sep="."):
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
 def _get_first(tree):
     return jax.tree_map(lambda arr: jax.device_get(arr[0]), tree)
 
@@ -503,7 +514,7 @@ def main(config, _):
         group=config.logging.group,
         name=config.logging.run_name,
         tags=config.logging.tags,
-        config=config,
+        config=flatten_dict(config),
     )
 
     # Possibly overwrite it from a checkpoint (except for the RNG)
