@@ -39,7 +39,7 @@ from transformer_grammars.models.masking import utils as masking_utils
 from transformer_grammars.training import checkpoint
 
 
-def flatten_dict(d, parent_key="", sep="."):
+def flatten_dict(d, parent_key="", sep="_"):
     items = []
     for k, v in d.items():
         new_key = f"{parent_key}{sep}{k}" if parent_key else k
