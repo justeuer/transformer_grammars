@@ -44,9 +44,9 @@ flags.DEFINE_string(
 flags.DEFINE_string(
     "lr_schedule_name", None, "Override for learning rate scheduler name."
 )
-flags.DEFINE_float("warmup_steps", None, "Override for warmup steps.")
 flags.DEFINE_float("start_lr", None, "Override for starting learning rate.")
-flags.DEFINE_float("cosine_cycle_length", None, "Override for cosine cycle length.")
+flags.DEFINE_integer("warmup_steps", None, "Override for warmup steps.")
+flags.DEFINE_integer("cosine_cycle_length", None, "Override for cosine cycle length.")
 flags.DEFINE_integer("vocab_size", None, "Override for vocabulary size.")
 flags.DEFINE_integer("num_layers", None, "Override for the number of layers.")
 flags.DEFINE_integer("ffw_hidden_size", None, "Override for feed-forward hidden size.")
