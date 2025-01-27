@@ -30,6 +30,7 @@ from transformer_grammars.training import train
 
 
 _CONFIG = config_flags.DEFINE_config_file("config")
+_FLAGS = flags.FLAGS
 
 flags.DEFINE_string(
     "sentencepiece_vocab_filename", None, "Override for sentencepiece_vocab_filename."
@@ -59,8 +60,6 @@ flags.DEFINE_string(
     "output_config", "configs/modified_config.json", "Path to save the modified config."
 )
 flags.DEFINE_list("logging_tags", None, "Override for logging tags.")
-
-_FLAGS = flags.FLAGS
 
 
 def override_config(config, output_path):
