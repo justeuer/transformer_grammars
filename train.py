@@ -60,7 +60,7 @@ flags.DEFINE_string("logging_run_name", None, "Override for logging run name.")
 flags.DEFINE_string(
     "output_config", "configs/modified_config.json", "Path to save the modified config."
 )
-flags.DEFINE_list("logging_id", None, "Override for logging id.")
+flags.DEFINE_string("logging_id", None, "Override for logging id.")
 
 
 def override_config(config, output_path):
