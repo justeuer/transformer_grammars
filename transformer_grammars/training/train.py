@@ -517,7 +517,7 @@ def main(config, _):
         project=config.logging.project,
         group=config.logging.group,
         name=config.logging.run_name,
-        tags=config.logging.tags,
+        id=config.logging.id,
         config=flat_config,
     )
 

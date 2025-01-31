@@ -60,7 +60,7 @@ flags.DEFINE_string("logging_run_name", None, "Override for logging run name.")
 flags.DEFINE_string(
     "output_config", "configs/modified_config.json", "Path to save the modified config."
 )
-flags.DEFINE_list("logging_tags", None, "Override for logging tags.")
+flags.DEFINE_list("logging_id", None, "Override for logging id.")
 
 
 def override_config(config, output_path):
@@ -109,8 +109,8 @@ def override_config(config, output_path):
         config.logging.group = _FLAGS.logging_group
     if _FLAGS.logging_run_name:
         config.logging.run_name = _FLAGS.logging_run_name
-    if _FLAGS.logging_tags:
-        config.logging.tags = _FLAGS.logging_tags
+    if _FLAGS.logging_id:
+        config.logging.id = _FLAGS.logging_id
 
     # Save modified config
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
