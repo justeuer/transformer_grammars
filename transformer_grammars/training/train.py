@@ -510,7 +510,6 @@ def main(config, _):
     _log_shapes(training_state.params)
 
     flat_config = flatten_dict(config)
-    print(flat_config)
 
     wandb.init(
         entity=config.logging.entity,
@@ -577,4 +576,5 @@ def main(config, _):
                 None, training_state, config
             )
 
+    wandb.finish()
     logging.info("Training complete.")
