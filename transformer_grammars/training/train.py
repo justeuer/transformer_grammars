@@ -517,6 +517,7 @@ def main(config, _):
         group=config.logging.group,
         name=config.logging.run_name,
         id=config.logging.id,
+        resume="allow",
         config=flat_config,
     )
 
