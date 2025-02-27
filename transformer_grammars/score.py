@@ -154,4 +154,4 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         writer = csv.writer(file)
         writer.writerows(rows)
     print(f"Total dataset log probability: {total_log_prob:.2f}")
-    print(f"Total dataset log probability: {(total_log_prob/jnp.log(2))/total_chars}")
+    print(f"BPC: {-((total_log_prob/jnp.log(2))/total_chars)}")
