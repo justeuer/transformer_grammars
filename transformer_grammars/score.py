@@ -116,6 +116,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
     state = None
     seq_log_prob = 0.0
     total_log_prob = 0.0
+    total_chars = 0
     chunk_id = 0
     rows = [["chunk_id", "input", "label", "log_prob", "surprisal"]]
     for chunk in chunks_it:
