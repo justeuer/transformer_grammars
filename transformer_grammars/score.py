@@ -129,7 +129,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         seq_log_prob += chunk_log_prob
         total_log_prob += chunk_log_prob
         total_tokens += len([l for l in labels if dic[l].startswith("▁")])
-        print([l for l in labels if dic[l].startswith("▁")])
+        print([dic[l] for l in labels if dic[l].startswith("▁")])
         if chunk.beginning_of_seq.item():
             print("=" * 80)
         for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
