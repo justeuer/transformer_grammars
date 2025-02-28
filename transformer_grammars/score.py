@@ -116,7 +116,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
     state = None
     seq_log_prob = 0.0
     total_log_prob = 0.0
-    total_chars = 0
+    total_tokens = 0
     chunk_id = 0
     rows = [["chunk_id", "input", "label", "log_prob", "surprisal"]]
     for chunk in chunks_it:
@@ -128,7 +128,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         labels = chunk.labels[0]
         seq_log_prob += chunk_log_prob
         total_log_prob += chunk_log_prob
-        total_chars += sum([len(dic[i].strip("▁")) for i in labels])
+        total_tokens += len(labels)
         if chunk.beginning_of_seq.item():
             print("=" * 80)
         for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
@@ -154,4 +154,6 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         writer = csv.writer(file)
         writer.writerows(rows)
     print(f"Total dataset log probability: {total_log_prob:.2f}")
-    print(f"BPC: {-((total_log_prob/jnp.log(2))/total_chars)}")
+    cross_ent = -((total_log_prob / jnp.log(2)) / total_tokens)
+    print(f"Cross-Entropy: {cross_ent}")
+    print(f"Perplexity: {2**cross_ent}")
