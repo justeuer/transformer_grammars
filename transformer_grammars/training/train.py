@@ -487,11 +487,25 @@ def main(config, _):
         config.evaluation, config.model, maskrules, token_type_ranges
     )
 
+    flat_config = flatten_dict(config)
+
+    wandb.init(
+        entity=config.logging.entity,
+        project=config.logging.project,
+        group=config.logging.group,
+        name=config.logging.run_name,
+        id=config.logging.id,
+        resume="allow",
+        config=flat_config,
+    )
+
     # Initialize the training state.
     params, state = _initialize_model(
         config.model, maskrules, token_type_ranges, init_rng, first_batch
     )
-    print(f"### model params {sum(p.size for p in jax.tree_util.tree_leaves(params))}")
+    n_params = sum(p.size for p in jax.tree_util.tree_leaves(params))
+    logging.info(f"Parameter Count: {n_params}")
+    wandb.log({"parameter count": n_params})
     opt_init, _ = _optimizer(config.training.optimizer, 0.0)
     opt_state = jax.pmap(opt_init)(params)
     step = _replicate_to_local_devices(jnp.zeros((), dtype=jnp.int32))
@@ -509,18 +523,6 @@ def main(config, _):
     # logging
     logging.info("Parameters shapes:")
     _log_shapes(training_state.params)
-
-    flat_config = flatten_dict(config)
-
-    wandb.init(
-        entity=config.logging.entity,
-        project=config.logging.project,
-        group=config.logging.group,
-        name=config.logging.run_name,
-        id=config.logging.id,
-        resume="allow",
-        config=flat_config,
-    )
 
     # Possibly overwrite it from a checkpoint (except for the RNG)
     try:
