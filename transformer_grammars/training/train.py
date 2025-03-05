@@ -491,7 +491,7 @@ def main(config, _):
     params, state = _initialize_model(
         config.model, maskrules, token_type_ranges, init_rng, first_batch
     )
-    print(f"### model params {sum([p.numel() for p in params])}")
+    print(f"### model params {params.values()}")
     opt_init, _ = _optimizer(config.training.optimizer, 0.0)
     opt_state = jax.pmap(opt_init)(params)
     step = _replicate_to_local_devices(jnp.zeros((), dtype=jnp.int32))
