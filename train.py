@@ -45,6 +45,8 @@ flags.DEFINE_string(
     "lr_schedule_name", None, "Override for learning rate scheduler name."
 )
 flags.DEFINE_float("start_lr", None, "Override for starting learning rate.")
+flags.DEFINE_float("min_lr", None, "Override for minimum learning rate.")
+flags.DEFINE_float("max_lr", None, "Override for maximum learning rate.")
 flags.DEFINE_integer("training_batch_size", None, "Override for batch size.")
 flags.DEFINE_integer("warmup_steps", None, "Override for warmup steps.")
 flags.DEFINE_integer("cosine_cycle_length", None, "Override for cosine cycle length.")
@@ -81,6 +83,10 @@ def override_config(config, output_path):
         config.training.lr_schedule.kwargs.warmup_steps = _FLAGS.warmup_steps
     if _FLAGS.start_lr is not None:
         config.training.lr_schedule.kwargs.start_lr = _FLAGS.start_lr
+    if _FLAGS.min_lr is not None:
+        config.training.lr_schedule.kwargs.min_lr = _FLAGS.min_lr
+    if _FLAGS.max_lr is not None:
+        config.training.lr_schedule.kwargs.max_lr = _FLAGS.max_lr
     if _FLAGS.cosine_cycle_length is not None:
         config.training.lr_schedule.kwargs.cosine_cycle_length = (
             _FLAGS.cosine_cycle_length
