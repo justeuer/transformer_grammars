@@ -516,7 +516,7 @@ def main(config, _):
     )
     n_params = sum(p.size for p in jax.tree_util.tree_leaves(params))
     logging.info(f"Parameter Count: {n_params}")
-    wandb.log({"parameter count": n_params})
+    wandb.log({"parameter_count": n_params})
     # Keep a Python and a JAX (on-device) copy of the current step to avoid
     # transfers.
     py_step = 0
