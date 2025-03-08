@@ -205,14 +205,14 @@ class SentencePieceVocab:
                 eos = idx
             elif token == "<unk>":
                 unk = idx
-            elif re.fullmatch(r"\(\S+", token):
-                opening_nts.append(idx)
-            elif re.fullmatch(r"\S+\)", token):
-                closing_nts.append(idx)
-            # elif re.fullmatch(r"\([A-Z]+", token):
+            # elif re.fullmatch(r"\(\S+", token):
             #    opening_nts.append(idx)
-            # elif re.fullmatch(r"[A-Z]+\)", token):
+            # elif re.fullmatch(r"\S+\)", token):
             #    closing_nts.append(idx)
+            elif re.fullmatch(r"\([A-Z]+", token):
+                opening_nts.append(idx)
+            elif re.fullmatch(r"[A-Z]+\)", token):
+                closing_nts.append(idx)
             else:
                 # Terminal, or whitespace.
                 # NOTE: This is brittle, and valid only with SP models built with the
