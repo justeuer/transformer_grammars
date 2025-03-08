@@ -54,6 +54,9 @@ flags.DEFINE_integer("vocab_size", None, "Override for vocabulary size.")
 flags.DEFINE_integer("num_layers", None, "Override for the number of layers.")
 flags.DEFINE_integer("ffw_hidden_size", None, "Override for feed-forward hidden size.")
 flags.DEFINE_integer("d_model", None, "Override for the model dimension.")
+flags.DEFINE_string(
+    "language", None, "Override for model language (only used for logging)."
+)
 flags.DEFINE_string("checkpoint_path", None, "Override for checkpointing path.")
 flags.DEFINE_string("logging_entity", None, "Override for logging entity.")
 flags.DEFINE_string("logging_project", None, "Override for logging project.")
@@ -67,6 +70,8 @@ flags.DEFINE_string("logging_id", None, "Override for logging id.")
 
 def override_config(config, output_path):
     # Training dataset overrides
+    if _FLAGS.language:
+        config.language = _FLAGS.language
     if _FLAGS.sentencepiece_vocab_filename:
         config.sentencepiece_vocab_filename = _FLAGS.sentencepiece_vocab_filename
     if _FLAGS.training_batch_size:
