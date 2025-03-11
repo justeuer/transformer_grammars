@@ -128,8 +128,8 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         labels = chunk.labels[0]
         seq_log_prob += chunk_log_prob
         total_log_prob += chunk_log_prob
-        print(inputs)
-        print([i for i in inputs if not i in range(*ranges.opening_non_terminals)])
+        print(labels)
+        print([i for i in labels if not i in range(*ranges.opening_non_terminals)])
         total_tokens += len(inputs)
         if chunk.beginning_of_seq.item():
             print("=" * 80)
