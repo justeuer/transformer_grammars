@@ -135,6 +135,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
                 for l in labels
                 if not l in range(*ranges.opening_non_terminals)
                 and l not in range(*ranges.closing_non_terminals)
+                and l is not ranges.pad_token
             ]
         )
         total_tokens += len(inputs)
