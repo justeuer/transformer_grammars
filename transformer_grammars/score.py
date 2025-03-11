@@ -81,6 +81,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
     # Get the token type ranges, i.e. which token IDs correspond to terminals,
     # to opening non-terminals, to closing non-terminals, etc.
     dic, ranges = utils.get_dictionary_and_ranges(tokenizer)
+    print(ranges.pad_token)
 
     # Load the model checkpoint.
     ckpt = checkpoint.load_checkpoint(checkpoint_path)
@@ -135,7 +136,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
                 for l in labels
                 if not l in range(*ranges.opening_non_terminals)
                 and l not in range(*ranges.closing_non_terminals)
-                and l is not ranges.pad_token
+                and l not in range(*ranges.pad_token)
             ]
         )
         total_tokens += len(inputs)
