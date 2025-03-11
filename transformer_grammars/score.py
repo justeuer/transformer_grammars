@@ -140,8 +140,6 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         total_terminal_log_prob += sum(t[1] for t in terminal_tokens_and_prob)
         if chunk.beginning_of_seq.item():
             print("=" * 80)
-            print(terminal_tokens_and_prob)
-            print("-" * 80)
         for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
             if inp == 0:
                 continue
