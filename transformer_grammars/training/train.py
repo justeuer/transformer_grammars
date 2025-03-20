@@ -485,7 +485,7 @@ def main(config, _):
     # Because these carry properties that the model core needs to know about,
     # build them early.
     maskrules = common.build_maskrules(config.model)
-    print(maskrules)
+    jax.debug.print("debug {}", maskrules)
 
     # Create the training dataset.
     ds = _build_train_input(config.training, maskrules, token_type_ranges)
