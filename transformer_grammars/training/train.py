@@ -558,7 +558,7 @@ def main(config, _):
                 config.model,
                 "checkpoint.pkl",
             )
-            if curr_loss < best_loss + config.evaluation.delta:
+            if curr_loss < best_loss:
                 best_loss = curr_loss
                 patience_counter = 0
                 _save_checkpoint(
@@ -569,6 +569,8 @@ def main(config, _):
                     "best.pkl",
                 )
                 wandb.log({"best_validation_loss": best_loss})
+            elif curr_loss < best_loss + config.evaluation.delta:
+                patience_counter = 0
             else:
                 patience_counter += 1
                 logging.warning(
