@@ -226,6 +226,7 @@ def _loss(apply, maskrules, vocab_size, params, state, rng, batch):
     loss = optax.softmax_cross_entropy(logits, labels_one_hot)
     total_loss = jnp.sum(mask * loss)
     total_count = jnp.sum(mask)
+    jax.debug.print("debug {}", mask[0])
     # Compute the average loss per-token for the batches received on each device
     # independently, then use that to get the per-device gradient, then average
     # those. This is fine here, as batches on each device roughly have the same
