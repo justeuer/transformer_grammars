@@ -163,7 +163,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
             seq_log_prob = 0.0
 
     print(f"Total dataset log probability: {total_log_prob:.2f}")
-    log2prob = total_terminal_log_prob / jnp.log(2)
+    log2prob = total_log_prob / jnp.log(2)
     cross_ent = -1 * (log2prob / total_terminal_tokens)
     print(f"Cross-Entropy: {cross_ent}")
     print(f"Perplexity: {2**cross_ent}")
