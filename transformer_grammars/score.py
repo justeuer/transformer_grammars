@@ -116,8 +116,8 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
     state = None
     seq_log_prob = 0.0
     total_log_prob = 0.0
-    total_terminal_tokens = 0
-    total_terminal_log_prob = 0
+    # total_terminal_tokens = 0
+    # total_terminal_log_prob = 0
     chunk_id = 0
     rows = [["chunk_id", "input", "label", "log_prob", "surprisal"]]
     for chunk in chunks_it:
@@ -127,20 +127,20 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         )
         inputs = chunk.inputs[0]
         labels = chunk.labels[0]
-        terminal_tokens_and_prob = [
-            (dic[l], p)
-            for l, p in zip(labels, labels_log_probs)
-            if not l in range(*ranges.opening_non_terminals)
-            and l not in range(*ranges.closing_non_terminals)
-            and l != ranges.pad_token
-        ]
+        # terminal_tokens_and_prob = [
+        #    (dic[l], p)
+        #    for l, p in zip(labels, labels_log_probs)
+        #    if not l in range(*ranges.opening_non_terminals)
+        #    and l not in range(*ranges.closing_non_terminals)
+        #    and l != ranges.pad_token
+        # ]
         seq_log_prob += chunk_log_prob
         total_log_prob += chunk_log_prob
-        total_terminal_tokens += len(terminal_tokens_and_prob)
-        total_terminal_log_prob += sum(t[1] for t in terminal_tokens_and_prob)
+        # total_terminal_tokens += len(terminal_tokens_and_prob)
+        # total_terminal_log_prob += sum(t[1] for t in terminal_tokens_and_prob)
         if chunk.beginning_of_seq.item():
-            print("=" * 80)
-            print("".join([str(t[0]) for t in terminal_tokens_and_prob]))
+            # print("=" * 80)
+            # print("".join([str(t[0]) for t in terminal_tokens_and_prob]))
             print("-" * 80)
         for inp, lab, lp, ls in zip(inputs, labels, labels_log_probs, labels_surp):
             if inp == 0:
@@ -162,11 +162,11 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
             print("")
             seq_log_prob = 0.0
 
-    print(f"Total dataset log probability: {total_log_prob:.2f}")
-    log2prob = total_terminal_log_prob / jnp.log(2)
-    cross_ent = -1 * (log2prob / total_terminal_tokens)
-    print(f"Cross-Entropy: {cross_ent}")
-    print(f"Perplexity: {2**cross_ent}")
+    # print(f"Total dataset log probability: {total_log_prob:.2f}")
+    # log2prob = total_terminal_log_prob / jnp.log(2)
+    # cross_ent = -1 * (log2prob / total_terminal_tokens)
+    # print(f"Cross-Entropy: {cross_ent}")
+    # print(f"Perplexity: {2**cross_ent}")
 
     with open(output, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
