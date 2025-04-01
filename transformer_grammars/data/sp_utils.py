@@ -209,9 +209,9 @@ class SentencePieceVocab:
             #    opening_nts.append(idx)
             # elif re.fullmatch(r"\S+\)", token):
             #    closing_nts.append(idx)
-            elif re.fullmatch(r"\([A-Z]+", token):
+            elif re.fullmatch(r"\([A-Z_a-z]+", token):
                 opening_nts.append(idx)
-            elif re.fullmatch(r"[A-Z]+\)", token):
+            elif re.fullmatch(r"[A-Z_a-z]+\)", token):
                 closing_nts.append(idx)
             else:
                 # Terminal, or whitespace.
