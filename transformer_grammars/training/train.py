@@ -379,7 +379,7 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
             total_count,
         )
         ds.seek(0)  # Reset the evaluation dataset without recreating it.
-        return total_loss / total_count
+        return total_loss, total_loss / total_count
 
     return eval_epoch
 
@@ -549,8 +549,9 @@ def main(config, _):
             wandb.log(metrics)
 
         if last or _should_do(config.evaluation, py_step):
-            curr_loss = evaluator(py_step, training_state)
-            wandb.log({"validation_loss": curr_loss})
+            curr_loss, curr_loss_avg = evaluator(py_step, training_state)
+            wandb.log({"validation_loss": curr_loss_avg})
+            wandb.log({"total_validation_loss":curr_loss})
             # save model
             _save_checkpoint(
                 config.checkpointing,
