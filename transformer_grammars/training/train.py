@@ -352,6 +352,7 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
             batch,
         )
         state, (_, total_loss, total_count) = aux
+        jax.debug.print("debug {}", total_count)
         total_loss = jax.lax.psum(total_loss, axis_name="i")
         total_count = jax.lax.psum(total_count, axis_name="i")
         return state, (total_loss, total_count)
@@ -372,8 +373,6 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
             batch_metrics = _get_first(batch_metrics)
             total_loss += batch_metrics[0]
             total_count += batch_metrics[1]
-            jax.debug.print("debug {}", batch_metrics[0])
-            jax.debug.print("debug {}", batch_metrics[1])
         logging.info(
             "[eval % 10d] total_loss=%s\ttotal_count=%d",
             py_step,
