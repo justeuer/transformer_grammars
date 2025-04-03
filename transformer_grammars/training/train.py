@@ -358,7 +358,7 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
         total_loss = jax.lax.psum(total_loss, axis_name="i")
         total_count = jax.lax.psum(total_count, axis_name="i")
         # total_terminals = jax.lax.psum(mask, axis_name="i")
-        total_terminals = jax.sum(mask)
+        total_terminals = jnp.sum(mask)
         jax.debug.print("debug {}", total_count)
         jax.debug.print("debug {}", total_terminals)
         return state, (total_loss, total_count)
