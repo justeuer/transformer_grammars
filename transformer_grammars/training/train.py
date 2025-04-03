@@ -370,9 +370,10 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
         for batch in ds:
             state, batch_metrics = p_eval_batch(params, state, batch)
             batch_metrics = _get_first(batch_metrics)
-            jax.debug.print("debug {}", batch_metrics)
             total_loss += batch_metrics[0]
             total_count += batch_metrics[1]
+            jax.debug.print("debug {}", batch_metrics[0])
+            jax.debug.print("debug {}", batch_metrics[1])
         logging.info(
             "[eval % 10d] total_loss=%s\ttotal_count=%d",
             py_step,
@@ -487,7 +488,6 @@ def main(config, _):
     # Because these carry properties that the model core needs to know about,
     # build them early.
     maskrules = common.build_maskrules(config.model)
-    jax.debug.print("debug {}", maskrules)
 
     # Create the training dataset.
     ds = _build_train_input(config.training, maskrules, token_type_ranges)
