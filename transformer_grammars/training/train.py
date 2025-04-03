@@ -352,6 +352,7 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
             batch,
         )
         print(batch)
+        jax.debug.print("debug {}", batch.inputs)
         print(aux)
         state, (_, total_loss, total_count) = aux
         total_loss = jax.lax.psum(total_loss, axis_name="i")
