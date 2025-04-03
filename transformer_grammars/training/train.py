@@ -339,6 +339,9 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
     apply = common.build_forward(
         model_cfg, maskrules, token_type_ranges, is_training=False
     ).apply
+    print(token_type_ranges.opening_non_terminals)
+    print(token_type_ranges.closing_non_terminals)
+    print(token_type_ranges.terminals)
 
     def eval_batch(params, state, batch):
         rng = None
@@ -352,8 +355,8 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
             batch,
         )
         print(batch)
-        jax.debug.print("debug {}", batch.inputs)
-        print(aux)
+        jax.debug.print("debug {}", batch.labels[0])
+        jax.debug.print("debug {}", batch.labels_ttypes[0])
         state, (_, total_loss, total_count) = aux
         total_loss = jax.lax.psum(total_loss, axis_name="i")
         total_count = jax.lax.psum(total_count, axis_name="i")
