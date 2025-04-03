@@ -370,6 +370,7 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
         for batch in ds:
             state, batch_metrics = p_eval_batch(params, state, batch)
             batch_metrics = _get_first(batch_metrics)
+            print(batch_metrics)
             total_loss += batch_metrics[0]
             total_count += batch_metrics[1]
         logging.info(
@@ -551,7 +552,7 @@ def main(config, _):
         if last or _should_do(config.evaluation, py_step):
             curr_loss, curr_loss_avg = evaluator(py_step, training_state)
             wandb.log({"validation_loss": curr_loss_avg})
-            wandb.log({"total_validation_loss":curr_loss})
+            wandb.log({"total_validation_loss": curr_loss})
             # save model
             _save_checkpoint(
                 config.checkpointing,
