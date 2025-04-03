@@ -352,18 +352,17 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
             batch,
         )
         # print(batch)
-        # jax.debug.print("debug {}", batch.labels_ttypes)
+        # jax.debug.print("debug {}", batch.labels_ttypes[0])
+        # jax.debug.print("debug {}", mask[0])
         mask = jnp.where(batch.labels_ttypes == 3, 1, 0)
-        jax.debug.print("debug {}", batch.labels_ttypes[0])
-        jax.debug.print("debug {}", mask[0])
         state, (_, total_loss, total_count) = aux
         total_loss = jax.lax.psum(total_loss, axis_name="i")
         total_count = jax.lax.psum(total_count, axis_name="i")
         total_terminals = jnp.sum(mask)
         total_terminals = jax.lax.psum(total_terminals, axis_name="i")
-        jax.debug.print("debug {}", total_count)
-        jax.debug.print("debug {}", total_terminals)
-        return state, (total_loss, total_count)
+        # jax.debug.print("debug {}", total_count)
+        # jax.debug.print("debug {}", total_terminals)
+        return state, (total_loss, total_count, total_terminals)
 
     p_eval_batch = jax.pmap(eval_batch, axis_name="i")
     ds = _build_eval_input(eval_cfg, maskrules, token_type_ranges)
@@ -375,20 +374,23 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
         state = None
         total_loss = 0.0
         total_count = 0.0
+        total_terminals = 0
 
         for batch in ds:
             state, batch_metrics = p_eval_batch(params, state, batch)
             batch_metrics = _get_first(batch_metrics)
             total_loss += batch_metrics[0]
             total_count += batch_metrics[1]
+            total_terminals += batch_metrics[2]
         logging.info(
-            "[eval % 10d] total_loss=%s\ttotal_count=%d",
+            "[eval % 10d] total_loss=%s\ttotal_count=%d\ttotal_terminals=%d",
             py_step,
             total_loss,
             total_count,
+            total_terminals,
         )
         ds.seek(0)  # Reset the evaluation dataset without recreating it.
-        return total_loss, total_loss / total_count
+        return total_loss, total_loss / total_count, total_loss / total_terminals
 
     return eval_epoch
 
@@ -557,9 +559,12 @@ def main(config, _):
             wandb.log(metrics)
 
         if last or _should_do(config.evaluation, py_step):
-            curr_loss, curr_loss_avg = evaluator(py_step, training_state)
-            wandb.log({"validation_loss": curr_loss_avg})
-            wandb.log({"total_validation_loss": curr_loss})
+            curr_loss_total, curr_loss_avg, curr_loss_terminal = evaluator(
+                py_step, training_state
+            )
+            wandb.log({"validation_loss_average": curr_loss_avg})
+            wandb.log({"validation_loss_total": curr_loss_total})
+            wandb.log({"validation_loss_terminal": curr_loss_terminal})
             # save model
             _save_checkpoint(
                 config.checkpointing,
@@ -568,8 +573,8 @@ def main(config, _):
                 config.model,
                 "checkpoint.pkl",
             )
-            if curr_loss < best_loss:
-                best_loss = curr_loss
+            if curr_loss_total < best_loss:
+                best_loss = curr_loss_total
                 patience_counter = 0
                 _save_checkpoint(
                     config.checkpointing,
@@ -579,7 +584,7 @@ def main(config, _):
                     "best.pkl",
                 )
                 wandb.log({"best_validation_loss": best_loss})
-            elif curr_loss < best_loss + config.evaluation.delta:
+            elif curr_loss_total < best_loss + config.evaluation.delta:
                 patience_counter = 0
             else:
                 patience_counter += 1
