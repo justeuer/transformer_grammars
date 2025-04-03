@@ -353,7 +353,7 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
         )
         # print(batch)
         # jax.debug.print("debug {}", batch.labels_ttypes)
-        mask = jnp.where(batch.labels_ttypes == 4, 1, 0)
+        mask = jnp.where(batch.labels_ttypes == 3, 1, 0)
         jax.debug.print("debug {}", batch.labels_ttypes[0])
         jax.debug.print("debug {}", mask[0])
         state, (_, total_loss, total_count) = aux
