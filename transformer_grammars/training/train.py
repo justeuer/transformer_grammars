@@ -351,15 +351,15 @@ def _build_evaluator(eval_cfg, model_cfg, maskrules, token_type_ranges):
             rng,
             batch,
         )
-        print(batch)
-        jax.debug.print("debug {}", batch.labels_ttypes)
+        # print(batch)
+        # jax.debug.print("debug {}", batch.labels_ttypes)
         mask = jnp.where(batch.labels_ttypes == 4, batch.labels_ttypes, 0)
         state, (_, total_loss, total_count) = aux
         total_loss = jax.lax.psum(total_loss, axis_name="i")
         total_count = jax.lax.psum(total_count, axis_name="i")
         total_terminals = jax.lax.psum(mask, axis_name="i")
-        print(total_count)
-        print(total_terminals)
+        jax.debug.print("debug {}", total_count)
+        jax.debug.print("debug {}", total_terminals)
         return state, (total_loss, total_count)
 
     p_eval_batch = jax.pmap(eval_batch, axis_name="i")
