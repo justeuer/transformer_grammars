@@ -116,8 +116,8 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
     state = None
     seq_log_prob = 0.0
     total_log_prob = 0.0
-    # total_terminal_tokens = 0
-    # total_terminal_log_prob = 0
+    total_terminal_tokens = 0
+    total_terminal_log_prob = 0
     total_words = 0
     chunk_id = 0
     rows = [["chunk_id", "input", "label", "log_prob", "surprisal"]]
@@ -128,18 +128,20 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         )
         inputs = chunk.inputs[0]
         labels = chunk.labels[0]
-        total_words += len([l for l in labels if str(dic[l]).startswith("▁")])
-        # terminal_tokens_and_prob = [
-        #    (dic[l], p)
-        #    for l, p in zip(labels, labels_log_probs)
-        #    if not l in range(*ranges.opening_non_terminals)
-        #    and l not in range(*ranges.closing_non_terminals)
-        #    and l != ranges.pad_token
-        # ]
         seq_log_prob += chunk_log_prob
         total_log_prob += chunk_log_prob
+        terminal_tokens_and_prob = [
+            (dic[l], p)
+            for l, p in zip(labels, labels_log_probs)
+            if not l in range(*ranges.opening_non_terminals)
+            and l not in range(*ranges.closing_non_terminals)
+            and l != ranges.pad_token
+        ]
         # total_terminal_tokens += len(terminal_tokens_and_prob)
-        # total_terminal_log_prob += sum(t[1] for t in terminal_tokens_and_prob)
+        total_terminal_log_prob += sum(t[1] for t in terminal_tokens_and_prob)
+        total_words += len(
+            [t for t in terminal_tokens_and_prob if str(t[0]).startswith("▁")]
+        )
         if chunk.beginning_of_seq.item():
             # print("=" * 80)
             # print("".join([str(t[0]) for t in terminal_tokens_and_prob]))
@@ -165,7 +167,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
             seq_log_prob = 0.0
 
     print(f"Total dataset log probability: {total_log_prob:.2f}")
-    print(f"Perplexity: {jnp.e**(-1*(total_log_prob/total_words))}")
+    print(f"Perplexity: {jnp.e**(-1*(total_terminal_log_prob/total_words))}")
     # log2prob = total_terminal_log_prob / jnp.log(2)
     # cross_ent = -1 * (log2prob / total_terminal_tokens)
     # print(f"Cross-Entropy: {cross_ent}")
