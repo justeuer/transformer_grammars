@@ -128,7 +128,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         )
         inputs = chunk.inputs[0]
         labels = chunk.labels[0]
-        words = [l for l in labels if l.startswith("▁")]
+        words = [l for l in labels if str(dic[l]).startswith("▁")]
         print(words)
         # total_words += len([l for l in labels if l.startswith("▁")])
         # terminal_tokens_and_prob = [
