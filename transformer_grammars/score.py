@@ -128,9 +128,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
         )
         inputs = chunk.inputs[0]
         labels = chunk.labels[0]
-        words = [dic[l] for l in labels if str(dic[l]).startswith("▁")]
-        print(words)
-        # total_words += len([l for l in labels if l.startswith("▁")])
+        total_words += len([l for l in labels if str(dic[l]).startswith("▁")])
         # terminal_tokens_and_prob = [
         #    (dic[l], p)
         #    for l, p in zip(labels, labels_log_probs)
@@ -167,6 +165,7 @@ def main(tokenizer, checkpoint_path, input_, output, add_eos, _):
             seq_log_prob = 0.0
 
     print(f"Total dataset log probability: {total_log_prob:.2f}")
+    print(f"Perplexity: {jnp.e**(-1*(total_log_prob/total_words))}")
     # log2prob = total_terminal_log_prob / jnp.log(2)
     # cross_ent = -1 * (log2prob / total_terminal_tokens)
     # print(f"Cross-Entropy: {cross_ent}")
