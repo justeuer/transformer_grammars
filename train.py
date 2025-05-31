@@ -22,15 +22,18 @@ import os
 os.environ["TF_ENABLED_DEVICE_TYPES"] = "CPU"
 
 # pylint: disable=g-import-not-at-top,g-bad-import-order
+import json
 import functools
 from absl import app
 from absl import flags
-from ml_collections import config_flags
+from ml_collections import ConfigDict, config_flags
 from transformer_grammars.training import train
 
 
-_CONFIG = config_flags.DEFINE_config_file("config")
+# _CONFIG = config_flags.DEFINE_config_file("config")
 _FLAGS = flags.FLAGS
+flags.DEFINE_string("config", None, "Path to JSON config file.")
+flags.mark_flag_as_required("config")
 
 flags.DEFINE_string(
     "sentencepiece_vocab_filename", None, "Override for sentencepiece_vocab_filename."
@@ -132,8 +135,11 @@ def override_config(config, output_path):
 
 
 def main(argv):
-    config = _CONFIG.value
-    config = override_config(config, _FLAGS.output_config)
+    with open(_FLAGS.config, "r", encoding="utf8") as f:
+        raw_config = json.load(f)
+    config = ConfigDict(raw_config)
+    # config = _CONFIG.value
+    # config = override_config(config, _FLAGS.output_config)
     train.main(config, None)  # defined with second argument not being used
 
 
