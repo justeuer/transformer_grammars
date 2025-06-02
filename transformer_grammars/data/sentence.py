@@ -116,6 +116,8 @@ class PhraseStructureSentence(object):
 
         if self.has_preterms and len(tags) != len(tokens):
             print(self._sent_tree)
+            print(tags)
+            print(tokens)
             raise AssertionError("Different number of tags and tokens.")
 
         return (tags, tokens) if self.has_preterms else (None, tokens)
